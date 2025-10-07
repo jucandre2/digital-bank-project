@@ -1,0 +1,12 @@
+Flask==2.2.2
+Flask-SQLAlchemy==3.0.3
+PyMySQL==1.0.2
+python-dotenv==0.21.0
+Werkzeug==2.2.2
+Flask-JWT-Extended==4.4.4
+google-auth==2.14.1
+requests==2.28.1
+Flask-Migrate==4.0.4
+twilio==8.9.1
+redis==4.3.4
+cryptography

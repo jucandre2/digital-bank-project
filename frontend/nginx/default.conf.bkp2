@@ -1,0 +1,8 @@
+server {
+    listen 80;
+    server_name testyourapp.com.br www.testyourapp.com.br;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+}

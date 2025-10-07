@@ -1,0 +1,137 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: backoffice_dashboard
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8443:8443"
+    networks:
+      - backoffice-net
+    volumes:
+      - ./frontend/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api_gateway
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./api-gateway:/app
+    depends_on: [db, redis, service-accounts, service-passwords, service-biometrics]
+    networks:
+      - backoffice-net
+
+  service-accounts:
+    build: ./service-accounts
+    container_name: service_accounts
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./service-accounts:/app
+    depends_on: [db]
+    networks:
+      - backoffice-net
+
+  service-passwords:
+    build: ./service-passwords
+    container_name: service_passwords
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./service-passwords:/app
+    depends_on: [db]
+    networks:
+      - backoffice-net
+
+  service-biometrics:
+    build: ./service-biometrics
+    container_name: service_biometrics
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./service-biometrics:/app
+    depends_on: [db]
+    networks:
+      - backoffice-net
+
+  service-remittance:
+    build: ./service-remittance
+    container_name: service_remittance
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./service-remittance:/app
+    depends_on: [db]
+    networks:
+      - backoffice-net
+
+  rasa-server:
+    image: rasa/rasa:3.6.12-full
+    container_name: rasa_server
+    restart: always
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./rasa-bot:/app
+    command:
+      - run
+      - --enable-api
+      - --cors
+      - "*"
+      - --debug
+    networks:
+      - backoffice-net
+
+  action-server:
+    build: ./rasa-bot/actions
+    container_name: action_server
+    restart: always
+    ports:
+      - "5055:5055"
+    volumes:
+      - ./rasa-bot/actions:/app/actions
+    networks:
+      - backoffice-net
+
+  db:
+    image: mysql:8.0
+    container_name: backoffice_db
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-init:/docker-entrypoint-initdb.d
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - backoffice-net
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: backoffice_redis
+    restart: always
+    networks:
+      - backoffice-net
+
+networks:
+  backoffice-net:
+    driver: bridge

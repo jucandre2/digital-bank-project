@@ -1,0 +1,24 @@
+version: "3.1"
+intents:
+  - greet
+  - check_balance
+  - check_statement
+  - start_password_reset
+  - start_biometrics_reset
+  - affirm
+  - deny
+responses:
+  utter_greet:
+    - text: "Olá! Como posso te ajudar hoje? (Saldo, Extrato, Resetar Senha, etc.)"
+  utter_ask_password_confirmation:
+    - text: "Você tem certeza que deseja resetar sua senha? Responda com 'sim' ou 'não'."
+  utter_ask_biometrics_confirmation:
+    - text: "Atenção: resetar sua biometria exigirá um novo cadastro de segurança no app. Confirma a operação? Responda com 'sim' ou 'não'."
+  utter_action_cancelled:
+    - text: "Ok, operação cancelada. Como mais posso ajudar?"
+  utter_default:
+    - text: "Desculpe, não entendi. Você pode tentar reformular?"
+actions:
+  - action_get_balance
+  - action_get_statement
+# Adicionar outras ações conforme necessário

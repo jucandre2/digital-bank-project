@@ -1,0 +1,41 @@
+version: "3.1"
+nlu:
+- intent: greet
+  examples: |
+    - oi
+    - olá
+    - bom dia
+    - boa tarde
+- intent: check_balance
+  examples: |
+    - qual meu saldo?
+    - queria ver o saldo
+    - quanto eu tenho na conta
+    - saldo
+- intent: check_statement
+  examples: |
+    - extrato bancário
+    - me mostra o extrato
+    - ultimas transações
+- intent: start_password_reset
+  examples: |
+    - quero resetar a senha
+    - esqueci minha senha
+    - como mudo a senha
+- intent: start_biometrics_reset
+  examples: |
+    - resetar biometria
+    - minha biometria não funciona
+    - quero refazer a biometria
+- intent: affirm
+  examples: |
+    - sim
+    - s
+    - confirmo
+    - pode ser
+- intent: deny
+  examples: |
+    - não
+    - nao
+    - n
+    - cancelar

@@ -1,0 +1,9 @@
+Flask==2.2.2
+boto3
+PyPDF2
+PyMySQL
+Flask-SQLAlchemy
+python-dotenv
+Werkzeug==2.2.2
+cryptography
+Flask-Migrate

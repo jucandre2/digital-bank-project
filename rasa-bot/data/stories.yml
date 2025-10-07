@@ -1,0 +1,13 @@
+version: "3.1"
+stories:
+- story: happy path balance check
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: check_balance
+  - action: action_get_balance
+
+- story: ask for statement
+  steps:
+  - intent: check_statement
+  - action: action_get_statement

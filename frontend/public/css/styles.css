@@ -1,0 +1,60 @@
+:root {
+    --bs-body-bg: #f8f9fa; 
+    --bs-body-color: #212529;
+    --blue-dark: #003366; 
+    --blue-main: #004D99; 
+    --blue-light: #3385FF;
+    --text-light: #FFFFFF;
+}
+body { font-family: 'Poppins', sans-serif; background-color: var(--bs-body-bg); color: var(--bs-body-color); }
+.hidden { display: none !important; }
+
+/* --- Seção de Login --- */
+.login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bs-body-bg); }
+.login-box { background-color: var(--text-light); color: var(--bs-body-color); padding: 3rem; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 450px; border-top: 5px solid var(--blue-main); }
+.login-box h1 { font-weight: 700; color: var(--blue-main); }
+.login-box .subtitle { color: #6c757d; }
+
+/* --- Layout Principal & Dashboard --- */
+.navbar { background-color: var(--blue-dark); }
+.main-content { min-height: calc(100vh - 70px); }
+h2, h5 { color: var(--blue-main); font-weight: 500; }
+.card { border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.btn-primary { background-color: var(--blue-light); border-color: var(--blue-light); }
+.btn-primary:hover { background-color: var(--blue-main); border-color: var(--blue-main); }
+.feedback-card { border-left-width: 5px; }
+.feedback-card.error { border-left-color: var(--bs-danger); }
+.feedback-card.success { border-left-color: var(--bs-success); }
+.modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1050; }
+.modal-content { background-color: white; color: var(--bs-body-color); padding: 2rem; border-radius: 8px; width: 100%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+/* --- NOVOS ESTILOS PARA O DASHBOARD "MARKETPLACE" --- */
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+.service-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.service-card .icon {
+    font-size: 2.5rem;
+    color: var(--blue-main);
+    margin-bottom: 1rem;
+}
+.service-card h5 {
+    font-weight: 700;
+}
+.service-card p {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
