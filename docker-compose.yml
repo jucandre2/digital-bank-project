@@ -31,7 +31,7 @@ services:
       - ./api-gateway/.env
     volumes:
       - ./api-gateway:/app
-    depends_on: [db, redis, service-accounts, service-passwords, service-biometrics]
+    depends_on: [db, redis, service-accounts, service-passwords, service-biometrics, service-clients]
     networks:
       - backoffice-net
 
@@ -79,6 +79,18 @@ services:
       - ./api-gateway/.env
     volumes:
       - ./service-remittance:/app
+    depends_on: [db]
+    networks:
+      - backoffice-net
+
+  service-clients:
+    build: ./service-clients
+    container_name: service_clients
+    restart: always
+    env_file:
+      - ./api-gateway/.env
+    volumes:
+      - ./service-clients:/app
     depends_on: [db]
     networks:
       - backoffice-net

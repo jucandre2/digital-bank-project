@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>C.Bank - BackOffice Operacional</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -20,8 +19,8 @@
                 <p class="subtitle">BackOffice Operacional</p>
                 <p>Por favor, utilize sua conta Google para acessar o painel.</p>
                 <div id="g_id_onload"
-                    data-client_id="1051812120457-mlc11q2vkh8d8fjmuhp5b5hg2743o04q.apps.googleusercontent.com"
-                    data-callback="handleGoogleLogin">
+                     data-client_id="1051812120457-mlc11q2vkh8d8fjmuhp5b5hg2743o04q.apps.googleusercontent.com"
+                     data-callback="handleGoogleLogin">
                 </div>
                 <div class="g_id_signin" data-type="standard" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
             </div>
@@ -32,7 +31,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
             <div class="container">
                 <a class="navbar-brand fw-bold" href="#">BackOffice Operacional</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" 
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                         aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -42,6 +41,7 @@
                         <li id="admin-menu-item-users" class="nav-item hidden"><a class="nav-link" href="#" onclick="showAdminPanel()">Gerenciar Usuários</a></li>
                         <li id="admin-menu-item-logs" class="nav-item hidden"><a class="nav-link" href="#" onclick="showAuditLogs()">Logs de Ações</a></li>
                         <li id="admin-menu-item-permissions" class="nav-item hidden"><a class="nav-link" href="#" onclick="showPermissionsPanel()">Gestão de Perfis</a></li>
+                        <li id="clients-menu-item" class="nav-item hidden"><a class="nav-link" href="#" onclick="showClientsPanel()">Painel do Cliente</a></li>
                     </ul>
                     <div class="d-flex text-light align-items-center">
                         <span id="welcome-text" class="me-3"></span>
@@ -60,100 +60,50 @@
                     <div class="card-body">
                         <h5 class="card-title">Adicionar Novo Usuário</h5>
                         <form id="add-user-form" class="row g-3 align-items-end">
-                            <div class="col-12 col-md-4">
-                                <label for="new-bo-email" class="form-label">E-mail (Google)</label>
-                                <input type="email" id="new-bo-email" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label for="new-bo-name" class="form-label">Nome Completo</label>
-                                <input type="text" id="new-bo-name" class="form-control" required>
-                            </div>
-                            <div class="col-12 col-md-2">
-                                <label for="new-bo-role" class="form-label">Perfil</label>
-                                <select id="new-bo-role" class="form-select">
-                                    <option value="User">User</option>
-                                    <option value="Operator">Operator</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">Adicionar</button>
-                            </div>
+                            <div class="col-12 col-md-4"><label for="new-bo-email" class="form-label">E-mail (Google)</label><input type="email" id="new-bo-email" class="form-control" required></div>
+                            <div class="col-12 col-md-4"><label for="new-bo-name" class="form-label">Nome Completo</label><input type="text" id="new-bo-name" class="form-control" required></div>
+                            <div class="col-12 col-md-2"><label for="new-bo-role" class="form-label">Perfil</label><select id="new-bo-role" class="form-select"><option value="User">User</option><option value="Operator">Operator</option><option value="Admin">Admin</option></select></div>
+                            <div class="col-12 col-md-2"><button type="submit" class="btn btn-primary w-100">Adicionar</button></div>
                         </form>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Usuários Cadastrados</h5>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr><th>ID</th><th>Nome</th><th>Email</th><th>Perfil</th><th>Ações</th></tr>
-                                </thead>
-                                <tbody id="users-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <div class="card"><div class="card-body"><h5 class="card-title">Usuários Cadastrados</h5><div class="table-responsive"><table class="table table-hover"><thead><tr><th>ID</th><th>Nome</th><th>Email</th><th>Perfil</th><th>Ações</th></tr></thead><tbody id="users-table-body"></tbody></table></div></div></div>
             </div>
-            <div id="logs-panel" class="hidden">
-                <h2 class="fw-light mb-4">Logs de Auditoria</h2>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-sm">
-                                <thead><tr><th>Timestamp</th><th>Usuário</th><th>Ação</th><th>Detalhes</th></tr></thead>
-                                <tbody id="logs-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="permissions-panel" class="hidden">
-                <h2 class="fw-light mb-4">Gestão de Perfis</h2>
-                <p class="text-muted">Selecione um perfil para ver e editar suas permissões. Lembre-se que o perfil "Admin" sempre tem acesso a tudo.</p>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="role-select" class="form-label">Selecione o Perfil</label>
-                            <select id="role-select" class="form-select" onchange="loadPermissionsForRole()">
-                                <option value="Operator">Operator</option>
-                                <option value="User">User</option>
-                            </select>
-                        </div>
-                        <hr>
-                        <div id="permissions-list"></div>
-                        <div class="d-flex justify-content-end mt-4">
-                            <button class="btn btn-primary" onclick="savePermissions()">Salvar Permissões</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="logs-panel" class="hidden"><h2 class="fw-light mb-4">Logs de Auditoria</h2><div class="card mb-4"><div class="card-body"><form id="logs-filter-form" class="row g-3 align-items-end"><div class="col-md-4"><label for="log-filter-email" class="form-label">Filtrar por E-mail</label><input type="text" class="form-control" id="log-filter-email" placeholder="parte do email..."></div><div class="col-md-3"><label for="log-filter-action" class="form-label">Filtrar por Ação</label><select id="log-filter-action" class="form-select"><option value="">Todas as Ações</option><option value="USER_LOGIN">USER_LOGIN</option><option value="ACCESS_FEATURE">ACCESS_FEATURE</option><option value="CREATE_USER">CREATE_USER</option><option value="UPDATE_USER">UPDATE_USER</option><option value="DELETE_USER">DELETE_USER</option><option value="UPDATE_PERMISSIONS">UPDATE_PERMISSIONS</option></select></div><div class="col-md-2"><label for="log-filter-start-date" class="form-label">Data Inicial</label><input type="date" class="form-control" id="log-filter-start-date"></div><div class="col-md-2"><label for="log-filter-end-date" class="form-label">Data Final</label><input type="date" class="form-control" id="log-filter-end-date"></div><div class="col-md-1 d-flex gap-2"><button type="submit" class="btn btn-primary w-100">Filtrar</button><button type="button" class="btn btn-secondary w-100" onclick="clearLogFilters()">Limpar</button></div></form></div></div><div class="card"><div class="card-body"><div class="table-responsive"><table class="table table-hover table-sm"><thead><tr><th>Timestamp</th><th>Usuário</th><th>Ação</th><th>Detalhes</th></tr></thead><tbody id="logs-table-body"></tbody></table></div></div></div></div>
+            <div id="permissions-panel" class="hidden"><h2 class="fw-light mb-4">Gestão de Perfis</h2><p class="text-muted">Selecione um perfil para ver e editar suas permissões. Lembre-se que o perfil "Admin" sempre tem acesso a tudo.</p><div class="card"><div class="card-body"><div class="mb-3"><label for="role-select" class="form-label">Selecione o Perfil</label><select id="role-select" class="form-select" onchange="loadPermissionsForRole()"><option value="Admin">Admin</option><option value="Operator">Operator</option><option value="User">User</option></select></div><hr><div id="permissions-list"></div><div class="d-flex justify-content-end mt-4"><button class="btn btn-primary" onclick="savePermissions()">Salvar Permissões</button></div></div></div></div>
+            <div id="clients-panel" class="hidden"><h2 class="fw-light mb-4">Painel de Clientes</h2><div class="card"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="card-title mb-0">Clientes Cadastrados</h5><button class="btn btn-primary" onclick="openClientModal()">Adicionar Novo Cliente</button></div><div class="table-responsive"><table class="table table-hover"><thead><tr><th>ID</th><th>Nome</th><th>CPF</th><th>Conta</th><th>Agência</th><th>Saldo</th><th>Ações</th></tr></thead><tbody id="clients-table-body"></tbody></table></div></div></div></div>
         </main>
     </div>
 
-    <!-- Modal Bootstrap para edição de usuário -->
-    <div id="edit-user-modal" class="modal fade" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <h4 class="mb-4 px-3 pt-3">Editar Usuário</h4>
-                <form id="edit-user-form" class="px-3 pb-3">
-                    <input type="hidden" id="edit-user-id">
-                    <div class="mb-3">
-                        <label for="edit-bo-name" class="form-label">Nome Completo</label>
-                        <input type="text" id="edit-bo-name" class="form-control" required>
+    <div id="edit-user-modal" class="modal fade" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><h4 class="mb-4 px-3 pt-3">Editar Usuário</h4><form id="edit-user-form" class="px-3 pb-3"><input type="hidden" id="edit-user-id"><div class="mb-3"><label for="edit-bo-name" class="form-label">Nome Completo</label><input type="text" id="edit-bo-name" class="form-control" required></div><div class="mb-3"><label for="edit-bo-role" class="form-label">Perfil</label><select id="edit-bo-role" class="form-select"><option value="User">User</option><option value="Operator">Operator</option><option value="Admin">Admin</option></select></div><div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button><button type="submit" class="btn btn-primary">Salvar Alterações</button></div></form></div></div></div>
+    <div id="client-modal" class="modal fade" tabindex="-1" aria-hidden="true"><div class="modal-dialog"><div class="modal-content"><form id="client-form" class="p-4"><h4 id="client-modal-title" class="mb-4">Adicionar Novo Cliente</h4><input type="hidden" id="client-id"><div class="mb-3"><label for="client-full-name" class="form-label">Nome Completo</label><input type="text" id="client-full-name" class="form-control" required></div><div class="row"><div class="col-md-6 mb-3"><label for="client-cpf" class="form-label">CPF</label><input type="text" id="client-cpf" class="form-control" required></div><div class="col-md-6 mb-3"><label for="client-rg" class="form-label">RG</label><input type="text" id="client-rg" class="form-control" required></div></div><div class="mb-3"><label for="client-address" class="form-label">Endereço Completo</label><textarea id="client-address" class="form-control" rows="2" required></textarea></div><div class="mb-3" id="client-password-group"><label for="client-password" class="form-label">Senha (para o WhatsApp)</label><input type="password" id="client-password" class="form-control"><div class="form-text">A senha é obrigatória apenas para novos clientes.</div></div><div class="d-flex justify-content-end gap-2 mt-4"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form></div></div></div>
+    
+    <div id="client-lookup-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg"> <div class="modal-content">
+                <div class="p-4">
+                    <h4 class="mb-4">Consultar Cliente</h4>
+                    <form id="client-lookup-form">
+                        <div class="row g-2 align-items-end">
+                            <div class="col">
+                                <label for="client-lookup-input" class="form-label">Buscar por CPF ou Nome do Cliente</label>
+                                <input type="text" id="client-lookup-input" class="form-control" placeholder="Digite o CPF ou nome..." required>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary">Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div id="client-lookup-results">
+                        <p class="text-center text-muted">Aguardando busca...</p>
                     </div>
-                    <div class="mb-3">
-                        <label for="edit-bo-role" class="form-label">Perfil</label>
-                        <select id="edit-bo-role" class="form-select">
-                            <option value="User">User</option>
-                            <option value="Operator">Operator</option>
-                        </select>
+                    
+                    <div id="client-lookup-statement-container" class="mt-4"></div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                     </div>
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

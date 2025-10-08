@@ -1,10 +1,13 @@
 :root {
-    --bs-body-bg: #f8f9fa; 
+    --bs-body-bg: #f8f9fa;
     --bs-body-color: #212529;
-    --blue-dark: #003366; 
-    --blue-main: #004D99; 
+    --blue-dark: #003366;
+    --blue-main: #004D99;
     --blue-light: #3385FF;
     --text-light: #FFFFFF;
+    /* Adicionado cores para o extrato */
+    --bs-success-dark: #146c43;
+    --bs-danger-dark: #a52834;
 }
 body { font-family: 'Poppins', sans-serif; background-color: var(--bs-body-bg); color: var(--bs-body-color); }
 .hidden { display: none !important; }
@@ -28,7 +31,7 @@ h2, h5 { color: var(--blue-main); font-weight: 500; }
 .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1050; }
 .modal-content { background-color: white; color: var(--bs-body-color); padding: 2rem; border-radius: 8px; width: 100%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
-/* --- NOVOS ESTILOS PARA O DASHBOARD "MARKETPLACE" --- */
+/* --- Dashboard "Marketplace" --- */
 .service-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -57,4 +60,14 @@ h2, h5 { color: var(--blue-main); font-weight: 500; }
 .service-card p {
     font-size: 0.9rem;
     color: #6c757d;
+}
+
+/* --- NOVOS ESTILOS PARA O EXTRATO --- */
+.text-credit {
+    color: var(--bs-success-dark);
+    font-weight: 500;
+}
+.text-debit {
+    color: var(--bs-danger-dark);
+    font-weight: 500;
 }

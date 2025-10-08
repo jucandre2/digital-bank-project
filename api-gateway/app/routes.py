@@ -1,21 +1,23 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, stream_with_context
+from flask import Response as FlaskResponse
 import requests
 from flask_jwt_extended import jwt_required, get_jwt, verify_jwt_in_request
 from functools import wraps
 from .models import db, BackOfficeUser, User, AuditLog, Permission, RolePermission
 from . import redis_client
 from twilio.twiml.messaging_response import MessagingResponse
+from datetime import datetime, timedelta
 
 bp = Blueprint('gateway_api', __name__, url_prefix='/api')
 
 SERVICE_ACCOUNTS_URL = "http://service-accounts:5001"
 SERVICE_PASSWORDS_URL = "http://service-passwords:5002"
 SERVICE_BIOMETRICS_URL = "http://service-biometrics:5003"
+SERVICE_CLIENTS_URL = "http://service-clients:5006"
 RASA_API_URL = "http://rasa-server:5005/webhooks/rest/webhook"
 
 def log_action(action, details=""):
     try:
-        verify_jwt_in_request(optional=True)
         claims = get_jwt()
         user_email = claims.get("email", "anonymous")
     except Exception:
@@ -32,19 +34,26 @@ def permission_required(permission_name):
         def decorator(*args, **kwargs):
             claims = get_jwt()
             user_role = claims.get("role", "User")
-
+            
+            has_permission_flag = False
             if user_role == 'Admin':
-                return fn(*args, **kwargs)
+                has_permission_flag = True
+            else:
+                permission = Permission.query.filter_by(name=permission_name).first()
+                if not permission:
+                    return jsonify(msg="Permissão interna inválida."), 500
 
-            permission = Permission.query.filter_by(name=permission_name).first()
-            if not permission:
-                return jsonify(msg="Permissão interna inválida."), 500
+                has_permission_db = RolePermission.query.filter_by(
+                    role_name=user_role, permission_id=permission.id
+                ).first()
+                if has_permission_db:
+                    has_permission_flag = True
 
-            has_permission = RolePermission.query.filter_by(
-                role_name=user_role, permission_id=permission.id
-            ).first()
-
-            if has_permission:
+            if has_permission_flag:
+                try:
+                    log_action("ACCESS_FEATURE", f"Recurso acessado com a permissão: {permission_name}")
+                except Exception as e:
+                    print(f"ERRO AO GRAVAR LOG DE ACESSO: {e}")
                 return fn(*args, **kwargs)
             else:
                 return jsonify(msg="Você não tem permissão para realizar esta ação."), 403
@@ -69,6 +78,27 @@ def reset_biometrics():
     response = requests.post(f"{SERVICE_BIOMETRICS_URL}/reset-biometrics", json=request.get_json())
     return jsonify(response.json()), response.status_code
 
+def _proxy(url, method, json_data, headers):
+    resp = requests.request(
+        method=method, url=url, json=json_data, headers=headers, stream=True
+    )
+    return FlaskResponse(
+        stream_with_context(resp.iter_content(chunk_size=1024)),
+        status=resp.status_code, headers=dict(resp.headers)
+    )
+
+@bp.route('/clients', defaults={'path': ''}, methods=['GET', 'POST'])
+@bp.route('/clients/<path:path>', methods=['GET', 'PUT', 'DELETE'])
+@permission_required('CAN_MANAGE_CLIENTS')
+def proxy_clients(path):
+    full_path = 'clients'
+    if path:
+        full_path = f"clients/{path}"
+    service_url = f"{SERVICE_CLIENTS_URL}/{full_path}"
+    headers = {key: value for (key, value) in request.headers if key != 'Host'}
+    json_data = request.get_json(silent=True)
+    return _proxy(service_url, request.method, json_data, headers)
+
 @bp.route('/backoffice-users', methods=['POST'])
 @permission_required('CAN_MANAGE_USERS')
 def create_backoffice_user():
@@ -77,7 +107,6 @@ def create_backoffice_user():
         return jsonify(msg="Dados incompletos"), 400
     if BackOfficeUser.query.filter_by(email=data['email']).first():
         return jsonify(msg="Email já cadastrado"), 409
-
     new_user = BackOfficeUser(email=data['email'], full_name=data['full_name'], role=data['role'])
     db.session.add(new_user)
     db.session.commit()
@@ -102,7 +131,6 @@ def update_backoffice_user(user_id):
     if 'role' in data and user.role != data['role']:
         log_details += f"Perfil alterado para '{data['role']}'."
         user.role = data['role']
-
     db.session.commit()
     log_action("UPDATE_USER", log_details)
     return jsonify(user.to_dict())
@@ -118,8 +146,45 @@ def delete_backoffice_user(user_id):
 
 @bp.route('/audit-logs', methods=['GET'])
 @permission_required('CAN_VIEW_AUDIT_LOGS')
-def get_audit_logs():
-    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(100).all()
+def get_all_audit_logs():
+    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).limit(200).all()
+    return jsonify([log.to_dict() for log in logs])
+
+@bp.route('/audit-logs/search', methods=['POST'])
+@permission_required('CAN_VIEW_AUDIT_LOGS')
+def search_audit_logs():
+    data = request.get_json()
+    if data is None:
+        data = {}
+
+    query = AuditLog.query
+
+    user_email = data.get('email')
+    start_date_str = data.get('start_date')
+    end_date_str = data.get('end_date')
+    action = data.get('action')
+
+    if user_email:
+        query = query.filter(AuditLog.user_email.ilike(f"%{user_email}%"))
+
+    if action:
+        query = query.filter(AuditLog.action == action)
+
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            query = query.filter(AuditLog.timestamp >= start_date)
+        except (ValueError, TypeError):
+            pass
+
+    if end_date_str:
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d') + timedelta(days=1)
+            query = query.filter(AuditLog.timestamp < end_date)
+        except (ValueError, TypeError):
+            pass
+
+    logs = query.order_by(AuditLog.timestamp.desc()).limit(200).all()
     return jsonify([log.to_dict() for log in logs])
 
 @bp.route('/permissions', methods=['GET'])
@@ -139,18 +204,14 @@ def get_role_permissions(role_name):
 def set_role_permissions(role_name):
     data = request.get_json()
     permission_ids = data.get('permission_ids', [])
-
     RolePermission.query.filter_by(role_name=role_name).delete()
-
     for pid in permission_ids:
         new_perm = RolePermission(role_name=role_name, permission_id=pid)
         db.session.add(new_perm)
-
     db.session.commit()
     log_action("UPDATE_PERMISSIONS", f"Permissões atualizadas para o perfil: {role_name}")
     return jsonify(msg=f"Permissões para {role_name} atualizadas com sucesso.")
 
 @bp.route('/whatsapp', methods=['POST'])
 def whatsapp_webhook():
-    # ... (código do webhook continua o mesmo) ...
-    return str(response_twilio)
+    return "OK", 200
